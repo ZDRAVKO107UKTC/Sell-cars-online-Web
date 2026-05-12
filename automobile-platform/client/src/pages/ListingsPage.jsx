@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import ListingCard from '../components/ListingCard';
 import ListingFilters from '../components/ListingFilters';
 import { getMakes, getModels } from '../services/carService';
@@ -16,6 +16,13 @@ const defaultFilters = {
   transmission: '',
   mileageMax: '',
   sort: 'latest',
+};
+
+const sortLabels = {
+  latest: 'Най-нови',
+  price_asc: 'Цена възходящо',
+  price_desc: 'Цена низходящо',
+  year_desc: 'Година',
 };
 
 function ListingsPage() {
@@ -81,6 +88,14 @@ function ListingsPage() {
     fetchListings();
   }, [filters]);
 
+  const activeFilterCount = useMemo(
+    () =>
+      Object.entries(filters).filter(
+        ([key, value]) => value !== '' && value !== defaultFilters[key]
+      ).length,
+    [filters]
+  );
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFilters((current) => ({
@@ -102,26 +117,26 @@ function ListingsPage() {
   };
 
   return (
-    <section className="section">
+    <section className="section listings-page">
       <div className="container">
         <div className="market-hero">
           <div>
             <span className="eyebrow">Marketplace inventory</span>
             <h1>Автомобилни обяви</h1>
-            <p>Филтрирай офертите по ключови характеристики и сравни предложенията бързо.</p>
+            <p>Филтрирай офертите по ключови характеристики и преглеждай пазара по по-ясен начин.</p>
           </div>
 
           <div className="market-hero__stats">
             <div>
               <strong>{listings.length}</strong>
-              <span>активни резултата</span>
+              <span>налични резултата</span>
             </div>
             <div>
-              <strong>{filters.make || 'Всички'}</strong>
-              <span>избрана марка</span>
+              <strong>{activeFilterCount}</strong>
+              <span>активни филтъра</span>
             </div>
             <div>
-              <strong>{filters.sort === 'latest' ? 'Нови' : 'Custom'}</strong>
+              <strong>{sortLabels[filters.sort] || 'Най-нови'}</strong>
               <span>сортиране</span>
             </div>
           </div>
@@ -133,23 +148,48 @@ function ListingsPage() {
           filters={filters}
           makes={makes}
           models={models}
+          activeFilterCount={activeFilterCount}
           onChange={handleChange}
           onSubmit={handleSubmit}
           onReset={handleReset}
         />
 
         <div className="content-column">
-          <div className="section-heading">
-            <h2>Налични предложения</h2>
-            <p>{listings.length} резултата</p>
+          <div className="results-toolbar">
+            <div className="section-heading">
+              <h2>Налични предложения</h2>
+              <p>
+                {filters.make ? `${filters.make} ` : ''}
+                {filters.model ? `${filters.model} ` : ''}
+                {filters.make || filters.model ? '• ' : ''}
+                {listings.length} резултата
+              </p>
+            </div>
+            <div className="results-toolbar__meta">
+              <span className="search-prompt">{sortLabels[filters.sort] || 'Най-нови'}</span>
+              {activeFilterCount > 0 && (
+                <button className="button button--ghost button--small" type="button" onClick={handleReset}>
+                  Изчисти филтрите
+                </button>
+              )}
+            </div>
           </div>
 
           {error && <p className="form-error">{error}</p>}
           {isLoading && <p className="muted-text">Зареждане на обяви...</p>}
 
           {!isLoading && listings.length === 0 && (
-            <div className="panel">
-              <p>Няма намерени обяви по избраните критерии.</p>
+            <div className="panel empty-state">
+              <h3>Няма съвпадения за текущото търсене</h3>
+              <p>Промени някой от филтрите или премахни ограниченията, за да видиш повече оферти.</p>
+              <div className="inline-actions">
+                <button className="button" type="button" onClick={handleReset}>
+                  Покажи всички обяви
+                </button>
+                <Link className="button button--ghost" to="/create-listing">
+                  Публикувай автомобил
+                </Link>
+              </div>
             </div>
           )}
 

@@ -2,6 +2,7 @@ function ListingFilters({
   filters,
   makes,
   models,
+  activeFilterCount,
   onChange,
   onSubmit,
   onReset,
@@ -16,6 +17,11 @@ function ListingFilters({
         <button className="button button--ghost" type="button" onClick={onReset}>
           Изчисти
         </button>
+      </div>
+
+      <div className="filters-summary">
+        <span className="search-prompt">{activeFilterCount} активни филтъра</span>
+        <p className="filters-note">Комбинирай марка, модел, цена, година и трансмисия за по-точни резултати.</p>
       </div>
 
       <div className="form-grid">
@@ -77,12 +83,7 @@ function ListingFilters({
 
         <div className="field">
           <label htmlFor="transmission">Скоростна кутия</label>
-          <select
-            id="transmission"
-            name="transmission"
-            value={filters.transmission}
-            onChange={onChange}
-          >
+          <select id="transmission" name="transmission" value={filters.transmission} onChange={onChange}>
             <option value="">Всички</option>
             <option value="Manual">Ръчна</option>
             <option value="Automatic">Автоматична</option>
@@ -112,7 +113,6 @@ function ListingFilters({
       </div>
 
       <div className="filters-footer">
-        <p className="filters-note">Комбинирай марка, модел, цена, година и трансмисия за по-точни резултати.</p>
         <button className="button" type="submit">
           Покажи резултати
         </button>

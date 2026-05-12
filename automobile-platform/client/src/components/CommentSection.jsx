@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 function CommentSection({
@@ -61,7 +62,7 @@ function CommentSection({
         <form className="comment-form" onSubmit={handleCreate}>
           <textarea
             rows="4"
-            placeholder="Напиши мнение за автомобила..."
+            placeholder="Добави мнение, въпрос или полезен детайл за автомобила..."
             value={newComment}
             onChange={(event) => setNewComment(event.target.value)}
           />
@@ -71,7 +72,12 @@ function CommentSection({
           </button>
         </form>
       ) : (
-        <p className="muted-text">Влез в профила си, за да добавиш коментар.</p>
+        <div className="comment-login-panel">
+          <p className="muted-text">Влез в профила си, за да зададеш въпрос или да споделиш мнение за обявата.</p>
+          <Link className="text-link" to="/login">
+            Към вход
+          </Link>
+        </div>
       )}
 
       <div className="comment-list">

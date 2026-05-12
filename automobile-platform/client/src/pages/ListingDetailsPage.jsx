@@ -56,8 +56,7 @@ function ListingDetailsPage() {
     }
   };
 
-  const canManageListing =
-    user && listing && (user.role === 'admin' || user.id === listing.userId);
+  const canManageListing = user && listing && (user.role === 'admin' || user.id === listing.userId);
 
   if (isLoading) {
     return (
@@ -80,7 +79,17 @@ function ListingDetailsPage() {
   }
 
   return (
-    <section className="section">
+    <section className="section details-page">
+      <div className="container">
+        <div className="details-breadcrumb">
+          <Link className="text-link" to="/listings">
+            Към всички обяви
+          </Link>
+          <span>/</span>
+          <span>{listing.car?.make} {listing.car?.model}</span>
+        </div>
+      </div>
+
       <div className="container details-layout">
         {error && <p className="form-error">{error}</p>}
 
@@ -96,7 +105,7 @@ function ListingDetailsPage() {
               <div className="gallery-thumbs">
                 {listing.images.map((image) => (
                   <button
-                    className="gallery-thumb"
+                    className={`gallery-thumb ${activeImage === `${uploadsBaseUrl}${image}` ? 'gallery-thumb--active' : ''}`}
                     key={image}
                     onClick={() => setActiveImage(`${uploadsBaseUrl}${image}`)}
                     type="button"
@@ -118,9 +127,17 @@ function ListingDetailsPage() {
                 <div className="details-lead">
                   <span>{listing.location}</span>
                   <span>Продавач: {listing.user?.username}</span>
+                  <span>{comments.length} коментара</span>
                 </div>
               </div>
               <div className="price-block">{Number(listing.price).toLocaleString('bg-BG')} лв.</div>
+            </div>
+
+            <div className="details-quick-meta">
+              <span className="spec-pill">{listing.year} г.</span>
+              <span className="spec-pill">{Number(listing.mileage).toLocaleString('bg-BG')} км</span>
+              <span className="spec-pill">{listing.fuelType}</span>
+              <span className="spec-pill">{listing.transmission}</span>
             </div>
 
             <div className="spec-grid">
@@ -138,10 +155,6 @@ function ListingDetailsPage() {
               <div>
                 <h2>Описание</h2>
                 <p>{listing.description}</p>
-              </div>
-              <div>
-                <h2>Контакт</h2>
-                <p>{listing.phone}</p>
               </div>
               <div>
                 <h2>Техническа база</h2>
@@ -169,13 +182,35 @@ function ListingDetailsPage() {
           <div className="panel contact-panel">
             <div className="panel-heading">
               <h2>Бърз контакт</h2>
-              <span>Свържи се директно с продавача</span>
+              <span>Свържи се директно с продавача и провери наличността</span>
             </div>
             <div className="contact-panel__value">{listing.phone}</div>
             <div className="contact-panel__items">
+              <span>{listing.location}</span>
               <span>{listing.fuelType}</span>
               <span>{listing.transmission}</span>
               <span>{Number(listing.mileage).toLocaleString('bg-BG')} км</span>
+            </div>
+          </div>
+
+          <div className="panel details-side-panel">
+            <div className="panel-heading">
+              <h2>Обява накратко</h2>
+              <span>Основните данни са събрани за по-бърз преглед</span>
+            </div>
+            <div className="stack-list">
+              <div className="stack-item">
+                <strong>Модел</strong>
+                <span>{listing.car?.make} {listing.car?.model} {listing.car?.generation}</span>
+              </div>
+              <div className="stack-item">
+                <strong>Собственик</strong>
+                <span>{listing.user?.username}</span>
+              </div>
+              <div className="stack-item">
+                <strong>Публикувана</strong>
+                <span>{new Date(listing.createdAt).toLocaleDateString('bg-BG')}</span>
+              </div>
             </div>
           </div>
 

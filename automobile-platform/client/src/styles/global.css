@@ -110,8 +110,9 @@ img {
   top: 0;
   z-index: 10;
   backdrop-filter: blur(14px);
-  background: rgba(248, 245, 238, 0.88);
+  background: rgba(248, 245, 238, 0.92);
   border-bottom: 1px solid rgba(31, 42, 34, 0.08);
+  box-shadow: 0 10px 30px rgba(68, 54, 32, 0.04);
 }
 
 .nav-row,
@@ -136,7 +137,7 @@ img {
 }
 
 .nav-row {
-  padding: 1rem 0;
+  padding: 0.95rem 0;
   grid-template-columns: 1.2fr 1fr auto;
   align-items: center;
 }
@@ -151,6 +152,13 @@ img {
 
 .brand-mark > span:last-child {
   min-width: 0;
+}
+
+.brand-mark__copy {
+  display: grid;
+  gap: 0.12rem;
+  font-size: clamp(1.15rem, 0.4vw + 1.02rem, 1.35rem);
+  letter-spacing: -0.03em;
 }
 
 .brand-mark small {
@@ -188,19 +196,40 @@ img {
 
 .nav-links {
   justify-content: center;
+  align-items: center;
 }
 
 .nav-links a {
   color: var(--text-soft);
-  padding: 0.42rem 0.1rem;
+  padding: 0.55rem 0.9rem;
   font-size: clamp(0.92rem, 0.2vw + 0.86rem, 1rem);
-  transition: color 0.2s ease, opacity 0.2s ease;
+  border-radius: 999px;
+  transition: color 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.nav-links a.active {
+  background: rgba(53, 88, 68, 0.08);
 }
 
 .nav-links a.active,
 .nav-links a:hover,
 .text-link:hover {
   color: var(--accent-strong);
+}
+
+.nav-links a:hover {
+  background: rgba(53, 88, 68, 0.05);
+}
+
+.nav-user {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: end;
+}
+
+.nav-user small {
+  color: var(--text-soft);
+  font-size: 0.78rem;
 }
 
 .user-chip,
@@ -473,6 +502,16 @@ img {
   gap: 1rem;
 }
 
+.home-section-bar,
+.results-toolbar,
+.details-breadcrumb,
+.profile-overview {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .home-page .section-heading h2,
 .profile-page .section-heading h2 {
   font-size: clamp(1.35rem, 1.3vw + 1rem, 1.95rem);
@@ -533,6 +572,11 @@ img {
   border: 1px solid rgba(181, 139, 67, 0.18);
 }
 
+.home-section-bar {
+  margin: 2rem 0 1.15rem;
+  align-items: end;
+}
+
 .search-grid {
   align-items: end;
 }
@@ -551,6 +595,12 @@ img {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(241, 234, 219, 0.76)),
     var(--surface);
+}
+
+.filters-summary {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
 }
 
 .inventory-card {
@@ -915,10 +965,37 @@ img {
   gap: 1rem;
 }
 
+.listing-card__title-stack,
+.listing-card__headline,
+.listing-card__seller,
+.results-toolbar__meta,
+.profile-overview__stats,
+.details-quick-meta,
+.comment-login-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.listing-card__title-stack {
+  align-items: center;
+}
+
+.listing-card__headline {
+  display: grid;
+  gap: 0.45rem;
+}
+
 .listing-card h3 {
   font-size: var(--fs-h3);
   letter-spacing: -0.02em;
   overflow-wrap: anywhere;
+}
+
+.listing-card__year {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.9rem;
 }
 
 .listing-card__generation {
@@ -940,6 +1017,16 @@ img {
   color: var(--text-soft);
 }
 
+.listing-card__seller {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.listing-card__seller small {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
 .text-link {
   color: var(--accent-strong);
   font-weight: 700;
@@ -954,9 +1041,33 @@ img {
   gap: 1.5rem;
 }
 
+.results-toolbar {
+  padding: 1.2rem 1.35rem;
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(31, 42, 34, 0.06);
+}
+
+.results-toolbar__meta {
+  justify-content: flex-end;
+  align-items: center;
+}
+
 .section-heading p {
   color: var(--text-soft);
   margin: 0.35rem 0 0;
+}
+
+.empty-state {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.empty-state h3,
+.profile-overview .section-heading h1 {
+  margin: 0;
+  font-size: clamp(1.45rem, 2vw, 2.1rem);
+  letter-spacing: -0.03em;
 }
 
 .details-layout {
@@ -994,6 +1105,11 @@ img {
   cursor: pointer;
 }
 
+.gallery-thumb--active img {
+  border-color: rgba(53, 88, 68, 0.34);
+  box-shadow: 0 0 0 3px rgba(53, 88, 68, 0.08);
+}
+
 .gallery-thumb img {
   border-radius: 1rem;
   aspect-ratio: 4 / 3;
@@ -1010,6 +1126,13 @@ img {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
+}
+
+.details-breadcrumb {
+  margin-bottom: 1rem;
+  align-items: center;
+  color: var(--text-soft);
+  font-size: 0.92rem;
 }
 
 .price-block {
@@ -1040,6 +1163,11 @@ img {
   color: var(--accent-strong);
 }
 
+.details-quick-meta {
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+}
+
 .contact-panel__value {
   font-size: clamp(1.25rem, 2.4vw, 1.9rem);
   font-weight: 800;
@@ -1058,6 +1186,16 @@ img {
 .comment-form {
   display: grid;
   gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.comment-login-panel {
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.54);
+  border: 1px solid rgba(31, 42, 34, 0.06);
   margin-bottom: 1rem;
 }
 
@@ -1081,6 +1219,17 @@ img {
 .admin-layout {
   grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
   align-items: start;
+}
+
+.profile-overview {
+  margin-bottom: 1.5rem;
+}
+
+.profile-overview__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  min-width: min(100%, 520px);
 }
 
 .stack-item {
@@ -1181,8 +1330,13 @@ img {
   justify-content: flex-end;
 }
 
+.details-side-panel .stack-list {
+  gap: 0.75rem;
+}
+
 @media (max-width: 1140px) {
   .hero-summary,
+  .profile-overview__stats,
   .inventory-card__specs,
   .market-strip,
   .market-hero__stats {
@@ -1249,6 +1403,12 @@ img {
     grid-template-columns: 1fr;
   }
 
+  .profile-overview,
+  .results-toolbar,
+  .home-section-bar {
+    flex-direction: column;
+  }
+
   .profile-layout,
   .admin-layout {
     grid-template-columns: 1fr;
@@ -1301,7 +1461,9 @@ img {
   .nav-links,
   .hero-actions,
   .inline-actions,
-  .comment-actions {
+  .comment-actions,
+  .results-toolbar__meta,
+  .comment-login-panel {
     width: 100%;
   }
 
@@ -1335,6 +1497,10 @@ img {
   .spec-grid div,
   .stack-item {
     min-width: 0;
+  }
+
+  .results-toolbar__meta {
+    justify-content: flex-start;
   }
 
   .hero h1,
@@ -1372,13 +1538,19 @@ img {
     gap: 1.5rem;
   }
 
+  .profile-overview__stats {
+    min-width: 0;
+    width: 100%;
+  }
+
   .home-page .quick-search .panel-heading h2,
   .home-page .section-heading h2,
   .profile-page .section-heading h2 {
     font-size: clamp(1.28rem, 6vw, 1.65rem);
   }
 
-  .profile-page .profile-panel .panel-heading h1 {
+  .profile-page .profile-panel .panel-heading h2,
+  .profile-page .section-heading h1 {
     font-size: clamp(1.7rem, 8vw, 2.15rem);
   }
 }
@@ -1443,6 +1615,10 @@ img {
     grid-template-columns: 1fr;
   }
 
+  .profile-overview__stats {
+    grid-template-columns: 1fr;
+  }
+
   .footer-meta {
     width: 100%;
     display: grid;
@@ -1471,6 +1647,10 @@ img {
   .contact-panel__items,
   .meta-grid {
     gap: 0.5rem;
+  }
+
+  .comment-login-panel {
+    align-items: flex-start;
   }
 
   .user-chip,

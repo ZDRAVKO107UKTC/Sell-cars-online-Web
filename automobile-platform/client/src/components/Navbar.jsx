@@ -15,9 +15,9 @@ function Navbar() {
       <div className="container nav-row">
         <Link className="brand-mark" to="/">
           <span className="brand-mark__badge">AB</span>
-          <span>
+          <span className="brand-mark__copy">
             AutoBG
-            <small>Автомобили с история, не просто с цена</small>
+            <small>Подреден пазар за коли с по-ясни обяви и реални детайли</small>
           </span>
         </Link>
 
@@ -32,7 +32,10 @@ function Navbar() {
         <div className="nav-actions">
           {isAuthenticated ? (
             <>
-              <span className="user-chip">{user.username}</span>
+              <div className="nav-user">
+                <span className="user-chip">{user.username}</span>
+                <small>{user.role === 'admin' ? 'Администратор' : 'Активен профил'}</small>
+              </div>
               <button className="button button--ghost" type="button" onClick={handleLogout}>
                 Изход
               </button>

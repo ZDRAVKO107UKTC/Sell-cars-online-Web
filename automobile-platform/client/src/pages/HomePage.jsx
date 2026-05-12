@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import ListingCard from '../components/ListingCard';
 import { getMakes, getModels } from '../services/carService';
@@ -86,9 +86,9 @@ function HomePage() {
               <div className="panel-heading">
                 <div>
                   <h2>Бързо търсене</h2>
-                  <span>Премини директно към най-подходящите обяви</span>
+                  <span>Премини директно към най-подходящите обяви за минути</span>
                 </div>
-                <span className="search-prompt">Намери оферта за минути</span>
+                <span className="search-prompt">Търсене по реални параметри</span>
               </div>
 
               <div className="form-grid search-grid">
@@ -135,23 +135,28 @@ function HomePage() {
 
             <div className="market-strip">
               <div className="market-strip__item">
-                <strong>Прегледна селекция</strong>
-                <span>Сортиране по цена, година и най-нови оферти</span>
+                <strong>По-лесно сравнение</strong>
+                <span>Цена, пробег, гориво и кутия се виждат веднага още в списъка.</span>
               </div>
               <div className="market-strip__item">
-                <strong>Пълен профил на автомобила</strong>
-                <span>Поколение, двигател, мощност, задвижване и купе</span>
+                <strong>Пълни спецификации</strong>
+                <span>Поколение, двигател, мощност, задвижване и детайли за модела.</span>
               </div>
               <div className="market-strip__item">
                 <strong>Директен контакт</strong>
-                <span>Телефон, снимки, описание и коментари под обявата</span>
+                <span>Снимки, телефон и коментари под всяка обява за по-бързо решение.</span>
               </div>
             </div>
           </div>
 
-          <div className="section-heading">
-            <h2>Последни обяви</h2>
-            <p>Най-новите предложения от платформата</p>
+          <div className="home-section-bar">
+            <div className="section-heading">
+              <h2>Последни обяви</h2>
+              <p>Най-новите предложения от платформата, готови за преглед</p>
+            </div>
+            <Link className="text-link" to="/listings">
+              Виж целия пазар
+            </Link>
           </div>
 
           {error && <p className="form-error">{error}</p>}
