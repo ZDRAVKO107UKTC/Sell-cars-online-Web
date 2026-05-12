@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { Op } = require('sequelize');
 const { Listing, Car, User, Comment } = require('../models');
+const { uploadDirectory } = require('../config/uploads');
 
 const parseImagesField = (value) => {
   if (!value) {
@@ -22,7 +23,7 @@ const parseImagesField = (value) => {
 
 const removeUploadedFiles = (images = []) => {
   images.forEach((imagePath) => {
-    const normalizedPath = path.join(__dirname, '..', imagePath.replace('/uploads/', 'uploads/'));
+    const normalizedPath = path.join(uploadDirectory, path.basename(imagePath));
     if (fs.existsSync(normalizedPath)) {
       fs.unlinkSync(normalizedPath);
     }

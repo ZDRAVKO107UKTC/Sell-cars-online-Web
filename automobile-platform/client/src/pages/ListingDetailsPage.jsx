@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import CommentSection from '../components/CommentSection';
+import { uploadsBaseUrl } from '../config/runtime';
 import { useAuth } from '../context/AuthContext';
 import {
   createComment,
@@ -10,8 +11,6 @@ import {
   updateComment,
 } from '../services/commentService';
 import { deleteListing, getListingById } from '../services/listingService';
-
-const imageBaseUrl = import.meta.env.VITE_UPLOADS_URL || 'http://localhost:5000';
 
 function ListingDetailsPage() {
   const { id } = useParams();
@@ -32,7 +31,7 @@ function ListingDetailsPage() {
       ]);
       setListing(listingData);
       setComments(commentsData);
-      setActiveImage(listingData.images?.[0] ? `${imageBaseUrl}${listingData.images[0]}` : '');
+      setActiveImage(listingData.images?.[0] ? `${uploadsBaseUrl}${listingData.images[0]}` : '');
     } catch (loadError) {
       setError(loadError.message);
     } finally {
@@ -99,10 +98,10 @@ function ListingDetailsPage() {
                   <button
                     className="gallery-thumb"
                     key={image}
-                    onClick={() => setActiveImage(`${imageBaseUrl}${image}`)}
+                    onClick={() => setActiveImage(`${uploadsBaseUrl}${image}`)}
                     type="button"
                   >
-                    <img src={`${imageBaseUrl}${image}`} alt={listing.title} />
+                    <img src={`${uploadsBaseUrl}${image}`} alt={listing.title} />
                   </button>
                 ))}
               </div>

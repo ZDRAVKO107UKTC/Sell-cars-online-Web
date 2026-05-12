@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom';
-
-const imageBaseUrl = import.meta.env.VITE_UPLOADS_URL || 'http://localhost:5000';
+import { uploadsBaseUrl } from '../config/runtime';
 
 function ListingCard({ listing }) {
-  const primaryImage = listing.images?.[0] ? `${imageBaseUrl}${listing.images[0]}` : null;
+  const primaryImage = listing.images?.[0] ? `${uploadsBaseUrl}${listing.images[0]}` : null;
 
   return (
     <article className="listing-card">

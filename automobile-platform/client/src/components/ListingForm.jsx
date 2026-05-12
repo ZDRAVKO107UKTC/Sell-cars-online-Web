@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { uploadsBaseUrl } from '../config/runtime';
 import { getCars, getMakes, getModels } from '../services/carService';
 
 const initialFormState = {
@@ -83,8 +84,6 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
 
     loadVariants();
   }, [selectedMake, selectedModel]);
-
-  const imageBaseUrl = import.meta.env.VITE_UPLOADS_URL || 'http://localhost:5000';
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -267,7 +266,7 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
         <div className="image-preview-grid">
           {existingImages.map((image) => (
             <div className="image-preview" key={image}>
-              <img src={`${imageBaseUrl}${image}`} alt="Listing preview" />
+              <img src={`${uploadsBaseUrl}${image}`} alt="Listing preview" />
               <button
                 className="button button--small button--danger"
                 onClick={() => setExistingImages((current) => current.filter((item) => item !== image))}

@@ -129,3 +129,79 @@ docker compose up --build
 - Базата се създава и синхронизира автоматично чрез Sequelize при стартиране на backend контейнера.
 - Снимките се съхраняват в `server/uploads` и се публикуват през `http://localhost:5000/uploads/...`.
 - Проектът е изцяло на JavaScript и не използва TypeScript или fake backend.
+
+## Vercel + Railway deployment
+
+This repository is now prepared for split deployment:
+
+- frontend -> Vercel
+- backend -> Railway
+- database -> Railway PostgreSQL
+
+### Frontend on Vercel
+
+Deploy the `client` folder as the Vercel project root.
+
+Files added for Vercel:
+
+- `client/vercel.json` for SPA rewrites to `index.html`
+- `client/.env.example` with the required frontend variables
+
+Set these Vercel environment variables:
+
+- `VITE_API_URL=https://your-railway-backend.up.railway.app/api`
+- `VITE_UPLOADS_URL=https://your-railway-backend.up.railway.app`
+
+Important:
+
+- Vercel should use `client` as the Root Directory
+- the React Router SPA rewrite is already configured
+
+### Backend on Railway
+
+Deploy the `server` folder as the Railway service root.
+
+Files added for Railway:
+
+- `server/railway.json` with Dockerfile build, start command and healthcheck
+- `server/.env.example` with production variables
+
+The backend now supports:
+
+- `DATABASE_URL` for Railway PostgreSQL
+- optional SSL via `DB_SSL=true`
+- configurable CORS origins through `CORS_ORIGINS`
+- optional Vercel preview support through `CORS_ALLOW_VERCEL_PREVIEWS`
+- configurable uploads directory through `UPLOAD_DIR`
+
+Recommended Railway variables:
+
+- `NODE_ENV=production`
+- `PORT=5000`
+- `JWT_SECRET=replace_with_a_secure_value`
+- `DATABASE_URL=<Railway PostgreSQL connection string>`
+- `DB_SSL=true`
+- `CORS_ORIGINS=https://your-vercel-app.vercel.app,https://your-custom-domain.com`
+- `CORS_ALLOW_VERCEL_PREVIEWS=false`
+- `UPLOAD_DIR=/data/uploads`
+- `ADMIN_USERNAME=admin`
+- `ADMIN_EMAIL=admin@autobg.local`
+- `ADMIN_PASSWORD=change_me`
+
+### Upload persistence on Railway
+
+Railway application filesystems are not a replacement for persistent storage. If you want uploaded listing images to survive redeploys, attach a Railway Volume and mount it to `/data`, then set:
+
+- `UPLOAD_DIR=/data/uploads`
+
+Without a mounted volume, newly uploaded images may be lost on redeploy.
+
+### Recommended deployment flow
+
+1. Create a Railway project for the backend and PostgreSQL.
+2. Set the Railway service Root Directory to `server`.
+3. Add a Railway Volume mounted at `/data` if you want persistent image uploads.
+4. Set the backend environment variables from `server/.env.example`.
+5. Deploy the frontend on Vercel with Root Directory set to `client`.
+6. Set the frontend environment variables from `client/.env.example`.
+7. Add the Vercel frontend URL to `CORS_ORIGINS` on Railway.
