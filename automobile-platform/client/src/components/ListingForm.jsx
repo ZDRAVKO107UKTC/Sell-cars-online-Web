@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { uploadsBaseUrl } from '../config/runtime';
+import { resolveUploadUrl } from '../config/runtime';
 import { getCars, getMakes, getModels } from '../services/carService';
 import { validateImageFiles, validateListingForm } from '../utils/validation';
 
@@ -301,7 +301,13 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
         <div className="image-preview-grid">
           {existingImages.map((image) => (
             <div className="image-preview" key={image}>
-              <img src={`${uploadsBaseUrl}${image}`} alt="Listing preview" />
+              <img
+                src={resolveUploadUrl(image)}
+                alt="Listing preview"
+                onError={(event) => {
+                  event.currentTarget.style.display = 'none';
+                }}
+              />
               <button
                 className="button button--small button--danger"
                 onClick={() => setExistingImages((current) => current.filter((item) => item !== image))}

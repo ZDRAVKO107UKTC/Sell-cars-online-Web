@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import CommentSection from '../components/CommentSection';
-import { uploadsBaseUrl } from '../config/runtime';
+import { resolveUploadUrl } from '../config/runtime';
 import { useAuth } from '../context/AuthContext';
 import {
   createComment,
@@ -19,6 +19,7 @@ function ListingDetailsPage() {
   const [listing, setListing] = useState(null);
   const [comments, setComments] = useState([]);
   const [activeImage, setActiveImage] = useState('');
+  const [failedImages, setFailedImages] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,9 +30,13 @@ function ListingDetailsPage() {
         getListingById(id),
         getListingComments(id),
       ]);
+
+      const resolvedImages = (listingData.images || []).map((image) => resolveUploadUrl(image)).filter(Boolean);
+
       setListing(listingData);
       setComments(commentsData);
-      setActiveImage(listingData.images?.[0] ? `${uploadsBaseUrl}${listingData.images[0]}` : '');
+      setFailedImages([]);
+      setActiveImage(resolvedImages[0] || '');
     } catch (loadError) {
       setError(loadError.message);
     } finally {
@@ -42,6 +47,20 @@ function ListingDetailsPage() {
   useEffect(() => {
     loadListing();
   }, [id]);
+
+  const resolvedImages = useMemo(
+    () =>
+      (listing?.images || [])
+        .map((image) => resolveUploadUrl(image))
+        .filter((image) => image && !failedImages.includes(image)),
+    [listing, failedImages]
+  );
+
+  useEffect(() => {
+    if (!activeImage && resolvedImages[0]) {
+      setActiveImage(resolvedImages[0]);
+    }
+  }, [activeImage, resolvedImages]);
 
   const handleDeleteListing = async () => {
     if (!window.confirm('Сигурен ли си, че искаш да изтриеш тази обява?')) {
@@ -54,6 +73,16 @@ function ListingDetailsPage() {
     } catch (deleteError) {
       setError(deleteError.message);
     }
+  };
+
+  const handleMainImageError = () => {
+    if (!activeImage) {
+      return;
+    }
+
+    setFailedImages((current) => (current.includes(activeImage) ? current : [...current, activeImage]));
+    const nextImage = resolvedImages.find((image) => image !== activeImage);
+    setActiveImage(nextImage || '');
   };
 
   const canManageListing = user && listing && (user.role === 'admin' || user.id === listing.userId);
@@ -96,21 +125,32 @@ function ListingDetailsPage() {
         <div className="details-main">
           <div className="panel gallery-panel">
             {activeImage ? (
-              <img className="gallery-main" src={activeImage} alt={listing.title} />
+              <img
+                className="gallery-main"
+                src={activeImage}
+                alt={listing.title}
+                onError={handleMainImageError}
+              />
             ) : (
-              <div className="gallery-main gallery-main--empty">Няма качени снимки</div>
+              <div className="gallery-main gallery-main--empty">Няма налична снимка за тази обява</div>
             )}
 
-            {listing.images?.length > 1 && (
+            {resolvedImages.length > 1 && (
               <div className="gallery-thumbs">
-                {listing.images.map((image) => (
+                {resolvedImages.map((image) => (
                   <button
-                    className={`gallery-thumb ${activeImage === `${uploadsBaseUrl}${image}` ? 'gallery-thumb--active' : ''}`}
+                    className={`gallery-thumb ${activeImage === image ? 'gallery-thumb--active' : ''}`}
                     key={image}
-                    onClick={() => setActiveImage(`${uploadsBaseUrl}${image}`)}
+                    onClick={() => setActiveImage(image)}
                     type="button"
                   >
-                    <img src={`${uploadsBaseUrl}${image}`} alt={listing.title} />
+                    <img
+                      src={image}
+                      alt={listing.title}
+                      onError={() =>
+                        setFailedImages((current) => (current.includes(image) ? current : [...current, image]))
+                      }
+                    />
                   </button>
                 ))}
               </div>

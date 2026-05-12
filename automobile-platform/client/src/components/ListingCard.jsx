@@ -1,15 +1,22 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { uploadsBaseUrl } from '../config/runtime';
+import { resolveUploadUrl } from '../config/runtime';
 
 function ListingCard({ listing }) {
-  const primaryImage = listing.images?.[0] ? `${uploadsBaseUrl}${listing.images[0]}` : null;
+  const [hasImageError, setHasImageError] = useState(false);
+  const primaryImage = listing.images?.[0] ? resolveUploadUrl(listing.images[0]) : '';
   const cardTitle = `${listing.car?.make || ''} ${listing.car?.model || ''}`.trim();
 
   return (
     <article className="listing-card">
       <div className="listing-card__media">
-        {primaryImage ? (
-          <img className="listing-card__image" src={primaryImage} alt={listing.title} />
+        {primaryImage && !hasImageError ? (
+          <img
+            className="listing-card__image"
+            src={primaryImage}
+            alt={listing.title}
+            onError={() => setHasImageError(true)}
+          />
         ) : (
           <div className="listing-card__placeholder">AutoBG</div>
         )}
