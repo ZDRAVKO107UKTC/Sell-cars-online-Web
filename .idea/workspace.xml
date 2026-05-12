@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4d1d1a01-ef2f-4988-99e8-bc79f469da73" name="Changes" comment="Vercel + raiway">
+    <list default="true" id="4d1d1a01-ef2f-4988-99e8-bc79f469da73" name="Changes" comment="refactor: enhance admin and profile pages with improved layout and user experience">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/automobile-platform/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/automobile-platform/client/src/components/CommentSection.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/automobile-platform/client/src/components/CommentSection.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/automobile-platform/client/src/components/ListingForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/automobile-platform/client/src/components/ListingForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/automobile-platform/client/src/pages/LoginPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/automobile-platform/client/src/pages/LoginPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/automobile-platform/client/src/pages/RegisterPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/automobile-platform/client/src/pages/RegisterPage.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +22,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="4" />
+    <option name="cachedIndexableFilesCount" value="69" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
@@ -73,6 +76,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\zdrav\WebstormProjects\21327" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -87,7 +95,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1778596484837</updated>
-      <workItem from="1778596487293" duration="8726000" />
+      <workItem from="1778596487293" duration="10074000" />
     </task>
     <task id="LOCAL-00001" summary="initial">
       <option name="closed" value="true" />
@@ -105,7 +113,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778603972190</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="updated README.md">
+      <option name="closed" value="true" />
+      <created>1778605489381</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1778605489381</updated>
+    </task>
+    <task id="LOCAL-00004" summary="refactor: enhance admin and profile pages with improved layout and user experience">
+      <option name="closed" value="true" />
+      <created>1778616983053</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1778616983053</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -114,7 +138,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="initial" />
     <MESSAGE value="Vercel + raiway" />
-    <option name="LAST_COMMIT_MESSAGE" value="Vercel + raiway" />
+    <MESSAGE value="updated README.md" />
+    <MESSAGE value="refactor: enhance admin and profile pages with improved layout and user experience" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: enhance admin and profile pages with improved layout and user experience" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

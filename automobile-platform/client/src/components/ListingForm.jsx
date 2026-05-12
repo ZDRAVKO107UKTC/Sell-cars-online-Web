@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { uploadsBaseUrl } from '../config/runtime';
 import { getCars, getMakes, getModels } from '../services/carService';
+import { validateImageFiles, validateListingForm } from '../utils/validation';
 
 const initialFormState = {
   carId: '',
@@ -28,6 +29,7 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
   const [selectedModel, setSelectedModel] = useState(initialData?.car?.model || '');
   const [existingImages, setExistingImages] = useState(initialData?.images || []);
   const [newImages, setNewImages] = useState([]);
+  const [newImagePreviews, setNewImagePreviews] = useState([]);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -85,6 +87,19 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
     loadVariants();
   }, [selectedMake, selectedModel]);
 
+  useEffect(() => {
+    const previews = newImages.map((file) => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+    }));
+
+    setNewImagePreviews(previews);
+
+    return () => {
+      previews.forEach((preview) => URL.revokeObjectURL(preview.url));
+    };
+  }, [newImages]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormValues((current) => ({ ...current, [name]: value }));
@@ -105,12 +120,32 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
     setFormValues((current) => ({ ...current, carId: '' }));
   };
 
+  const handleImageSelection = (event) => {
+    const files = Array.from(event.target.files || []);
+    const validationError = validateImageFiles(files);
+
+    if (validationError) {
+      setError(validationError);
+      event.target.value = '';
+      return;
+    }
+
+    setError('');
+    setNewImages(files);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
       setIsSubmitting(true);
       setError('');
+
+      const validationError = validateListingForm(formValues, existingImages.length, newImages);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
 
       const payload = new FormData();
 
@@ -136,7 +171,7 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
     <form className="panel" onSubmit={handleSubmit}>
       <div className="panel-heading">
         <h1>{isEditing ? 'Редакция на обява' : 'Нова автомобилна обява'}</h1>
-        <span>Полета за автомобил, контакт и снимки</span>
+        <span>Полетата за автомобил, контакт и снимки</span>
       </div>
 
       <div className="form-grid">
@@ -257,7 +292,7 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
             multiple
             accept="image/*"
             type="file"
-            onChange={(event) => setNewImages(Array.from(event.target.files || []))}
+            onChange={handleImageSelection}
           />
         </div>
       </div>
@@ -280,7 +315,17 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
       )}
 
       {newImages.length > 0 && (
-        <div className="muted-text">{newImages.length} нови снимки са избрани за качване.</div>
+        <>
+          <div className="image-preview-grid">
+            {newImagePreviews.map((image) => (
+              <div className="image-preview" key={image.url}>
+                <img src={image.url} alt={image.name} />
+                <span className="muted-text">{image.name}</span>
+              </div>
+            ))}
+          </div>
+          <div className="muted-text">{newImages.length} нови снимки са избрани за качване.</div>
+        </>
       )}
 
       {error && <p className="form-error">{error}</p>}

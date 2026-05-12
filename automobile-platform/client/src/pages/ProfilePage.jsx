@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
 import { getListingsByUser } from '../services/listingService';
+import { validateProfileForm } from '../utils/validation';
 
 function ProfilePage() {
   const { user, updateProfile } = useAuth();
@@ -48,9 +49,15 @@ function ProfilePage() {
     try {
       setError('');
       setMessage('');
+      const validationError = validateProfileForm(formValues);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+
       const payload = {
-        username: formValues.username,
-        email: formValues.email,
+        username: formValues.username.trim(),
+        email: formValues.email.trim(),
       };
 
       if (formValues.password) {

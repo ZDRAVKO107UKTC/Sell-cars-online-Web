@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { validateCommentContent } from '../utils/validation';
 
 function CommentSection({
   comments,
@@ -17,13 +18,16 @@ function CommentSection({
 
   const handleCreate = async (event) => {
     event.preventDefault();
-    if (!newComment.trim()) {
-      return;
-    }
 
     try {
       setIsSubmitting(true);
       setError('');
+      const validationError = validateCommentContent(newComment);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+
       await onCreate({ content: newComment.trim() });
       setNewComment('');
     } catch (submitError) {
@@ -34,13 +38,15 @@ function CommentSection({
   };
 
   const handleSaveEdit = async (commentId) => {
-    if (!editingContent.trim()) {
-      return;
-    }
-
     try {
       setIsSubmitting(true);
       setError('');
+      const validationError = validateCommentContent(editingContent);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+
       await onUpdate(commentId, { content: editingContent.trim() });
       setEditingId(null);
       setEditingContent('');

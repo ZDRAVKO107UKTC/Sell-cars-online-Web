@@ -1,5 +1,6 @@
-const { Op, fn, col } = require('sequelize');
+const { fn, col } = require('sequelize');
 const { Car } = require('../models');
+const { validateCarPayload } = require('../utils/validation');
 
 const getCars = async (req, res) => {
   try {
@@ -77,6 +78,11 @@ const getCarById = async (req, res) => {
 
 const createCar = async (req, res) => {
   try {
+    const validation = validateCarPayload(req.body);
+    if (!validation.valid) {
+      return res.status(400).json({ message: validation.message });
+    }
+
     const {
       make,
       model,
@@ -89,30 +95,15 @@ const createCar = async (req, res) => {
       transmission,
       drivetrain,
       bodyType,
-    } = req.body;
-
-    if (
-      !make ||
-      !model ||
-      !generation ||
-      !yearFrom ||
-      !engine ||
-      !horsepower ||
-      !fuelType ||
-      !transmission ||
-      !drivetrain ||
-      !bodyType
-    ) {
-      return res.status(400).json({ message: 'All required car fields must be filled.' });
-    }
+    } = validation.values;
 
     const existingCar = await Car.findOne({
       where: {
         make,
         model,
         generation,
-        yearFrom: Number(yearFrom),
-        yearTo: yearTo ? Number(yearTo) : null,
+        yearFrom,
+        yearTo,
         engine,
       },
     });
@@ -125,10 +116,10 @@ const createCar = async (req, res) => {
       make,
       model,
       generation,
-      yearFrom: Number(yearFrom),
-      yearTo: yearTo ? Number(yearTo) : null,
+      yearFrom,
+      yearTo,
       engine,
-      horsepower: Number(horsepower),
+      horsepower,
       fuelType,
       transmission,
       drivetrain,

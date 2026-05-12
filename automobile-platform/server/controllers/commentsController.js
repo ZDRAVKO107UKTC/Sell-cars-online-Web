@@ -1,4 +1,5 @@
 const { Comment, Listing, User } = require('../models');
+const { validateComment } = require('../utils/validation');
 
 const getListingComments = async (req, res) => {
   try {
@@ -57,15 +58,15 @@ const createComment = async (req, res) => {
       return res.status(404).json({ message: 'Listing not found.' });
     }
 
-    const { content } = req.body;
-    if (!content) {
-      return res.status(400).json({ message: 'Comment content is required.' });
+    const validation = validateComment(req.body.content);
+    if (!validation.valid) {
+      return res.status(400).json({ message: validation.message });
     }
 
     const comment = await Comment.create({
       userId: req.user.id,
       listingId: listing.id,
-      content,
+      content: validation.value,
     });
 
     const createdComment = await Comment.findByPk(comment.id, {
@@ -95,11 +96,12 @@ const updateComment = async (req, res) => {
       return res.status(403).json({ message: 'You cannot edit this comment.' });
     }
 
-    if (!req.body.content) {
-      return res.status(400).json({ message: 'Comment content is required.' });
+    const validation = validateComment(req.body.content);
+    if (!validation.valid) {
+      return res.status(400).json({ message: validation.message });
     }
 
-    comment.content = req.body.content;
+    comment.content = validation.value;
     await comment.save();
 
     const updatedComment = await Comment.findByPk(comment.id, {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { validateLoginForm } from '../utils/validation';
 
 function LoginPage() {
   const { login } = useAuth();
@@ -21,6 +22,12 @@ function LoginPage() {
     try {
       setIsSubmitting(true);
       setError('');
+      const validationError = validateLoginForm(formValues);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+
       await login(formValues);
       navigate(location.state?.from?.pathname || '/profile');
     } catch (submitError) {

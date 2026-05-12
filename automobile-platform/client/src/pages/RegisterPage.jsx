@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { validateRegisterForm } from '../utils/validation';
 
 function RegisterPage() {
   const { register } = useAuth();
@@ -24,6 +25,12 @@ function RegisterPage() {
     try {
       setIsSubmitting(true);
       setError('');
+      const validationError = validateRegisterForm(formValues);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+
       await register(formValues);
       navigate('/profile');
     } catch (submitError) {

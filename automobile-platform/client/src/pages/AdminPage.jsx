@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createCar, getCars } from '../services/carService';
 import { getAllComments } from '../services/commentService';
 import { getListings } from '../services/listingService';
+import { validateCarForm } from '../utils/validation';
 
 const initialCarState = {
   make: '',
@@ -55,6 +56,12 @@ function AdminPage() {
     try {
       setError('');
       setMessage('');
+      const validationError = validateCarForm(formValues);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+
       await createCar(formValues);
       setMessage('Новият автомобилен модел беше добавен успешно.');
       setFormValues(initialCarState);

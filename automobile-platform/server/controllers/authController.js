@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const { User } = require('../models');
+const { validateAuthPayload, cleanString } = require('../utils/validation');
 
 const signToken = (user) =>
   jwt.sign(
@@ -24,11 +25,12 @@ const sanitizeUser = (user) => ({
 
 const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'Username, email and password are required.' });
+    const validation = validateAuthPayload(req.body);
+    if (!validation.valid) {
+      return res.status(400).json({ message: validation.message });
     }
+
+    const { username, email, password } = validation.values;
 
     const existingUser = await User.findOne({
       where: {
@@ -60,7 +62,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = cleanString(req.body.email).toLowerCase();
+    const password = req.body.password;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required.' });
@@ -99,30 +102,38 @@ const updateCurrentUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    if (username && username !== user.username) {
+    const validation = validateAuthPayload({ username, email, password }, true);
+    if (!validation.valid) {
+      return res.status(400).json({ message: validation.message });
+    }
+
+    const normalizedUsername = username !== undefined ? validation.values.username : user.username;
+    const normalizedEmail = email !== undefined ? validation.values.email : user.email;
+
+    if (username && normalizedUsername !== user.username) {
       const existingUsername = await User.findOne({
         where: {
-          username,
+          username: normalizedUsername,
           id: { [Op.ne]: user.id },
         },
       });
       if (existingUsername) {
         return res.status(409).json({ message: 'Username is already taken.' });
       }
-      user.username = username;
+      user.username = normalizedUsername;
     }
 
-    if (email && email !== user.email) {
+    if (email && normalizedEmail !== user.email) {
       const existingEmail = await User.findOne({
         where: {
-          email,
+          email: normalizedEmail,
           id: { [Op.ne]: user.id },
         },
       });
       if (existingEmail) {
         return res.status(409).json({ message: 'Email is already taken.' });
       }
-      user.email = email;
+      user.email = normalizedEmail;
     }
 
     if (password) {

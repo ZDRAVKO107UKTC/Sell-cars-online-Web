@@ -3,6 +3,7 @@ const path = require('path');
 const { Op } = require('sequelize');
 const { Listing, Car, User, Comment } = require('../models');
 const { uploadDirectory } = require('../config/uploads');
+const { validateListingPayload } = require('../utils/validation');
 
 const parseImagesField = (value) => {
   if (!value) {
@@ -155,54 +156,33 @@ const getListingById = async (req, res) => {
 };
 
 const createListing = async (req, res) => {
-  try {
-    const {
-      carId,
-      title,
-      description,
-      price,
-      year,
-      mileage,
-      fuelType,
-      transmission,
-      location,
-      phone,
-    } = req.body;
+  const uploadedImages = (req.files || []).map((file) => `/uploads/${file.filename}`);
 
-    if (
-      !carId ||
-      !title ||
-      !description ||
-      !price ||
-      !year ||
-      !mileage ||
-      !fuelType ||
-      !transmission ||
-      !location ||
-      !phone
-    ) {
-      return res.status(400).json({ message: 'All listing fields are required.' });
+  try {
+    const validation = validateListingPayload(req.body);
+    if (!validation.valid) {
+      removeUploadedFiles(uploadedImages);
+      return res.status(400).json({ message: validation.message });
     }
 
-    const car = await Car.findByPk(carId);
+    const car = await Car.findByPk(validation.values.carId);
     if (!car) {
+      removeUploadedFiles(uploadedImages);
       return res.status(404).json({ message: 'Selected car was not found.' });
     }
 
-    const uploadedImages = (req.files || []).map((file) => `/uploads/${file.filename}`);
-
     const listing = await Listing.create({
       userId: req.user.id,
-      carId: Number(carId),
-      title,
-      description,
-      price: Number(price),
-      year: Number(year),
-      mileage: Number(mileage),
-      fuelType,
-      transmission,
-      location,
-      phone,
+      carId: validation.values.carId,
+      title: validation.values.title,
+      description: validation.values.description,
+      price: validation.values.price,
+      year: validation.values.year,
+      mileage: validation.values.mileage,
+      fuelType: validation.values.fuelType,
+      transmission: validation.values.transmission,
+      location: validation.values.location,
+      phone: validation.values.phone,
       images: uploadedImages,
     });
 
@@ -212,60 +192,60 @@ const createListing = async (req, res) => {
 
     return res.status(201).json(createdListing);
   } catch (error) {
+    removeUploadedFiles(uploadedImages);
     return res.status(500).json({ message: 'Unable to create listing.' });
   }
 };
 
 const updateListing = async (req, res) => {
+  const newImages = (req.files || []).map((file) => `/uploads/${file.filename}`);
+
   try {
     const listing = await Listing.findByPk(req.params.id);
     if (!listing) {
+      removeUploadedFiles(newImages);
       return res.status(404).json({ message: 'Listing not found.' });
     }
 
     if (req.user.role !== 'admin' && listing.userId !== req.user.id) {
+      removeUploadedFiles(newImages);
       return res.status(403).json({ message: 'You cannot edit this listing.' });
     }
 
-    const {
-      carId,
-      title,
-      description,
-      price,
-      year,
-      mileage,
-      fuelType,
-      transmission,
-      location,
-      phone,
-      existingImages,
-    } = req.body;
-
-    if (carId) {
-      const car = await Car.findByPk(carId);
-      if (!car) {
-        return res.status(404).json({ message: 'Selected car was not found.' });
-      }
-      listing.carId = Number(carId);
+    const keptImages = parseImagesField(req.body.existingImages);
+    if (keptImages.length + newImages.length > 8) {
+      removeUploadedFiles(newImages);
+      return res.status(400).json({ message: 'You can upload up to 8 images.' });
     }
 
-    const keptImages = parseImagesField(existingImages);
-    const newImages = (req.files || []).map((file) => `/uploads/${file.filename}`);
+    const validation = validateListingPayload(req.body);
+    if (!validation.valid) {
+      removeUploadedFiles(newImages);
+      return res.status(400).json({ message: validation.message });
+    }
+
+    const car = await Car.findByPk(validation.values.carId);
+    if (!car) {
+      removeUploadedFiles(newImages);
+      return res.status(404).json({ message: 'Selected car was not found.' });
+    }
+
     const removedImages = (listing.images || []).filter((image) => !keptImages.includes(image));
 
     if (removedImages.length > 0) {
       removeUploadedFiles(removedImages);
     }
 
-    listing.title = title ?? listing.title;
-    listing.description = description ?? listing.description;
-    listing.price = price ? Number(price) : listing.price;
-    listing.year = year ? Number(year) : listing.year;
-    listing.mileage = mileage ? Number(mileage) : listing.mileage;
-    listing.fuelType = fuelType ?? listing.fuelType;
-    listing.transmission = transmission ?? listing.transmission;
-    listing.location = location ?? listing.location;
-    listing.phone = phone ?? listing.phone;
+    listing.carId = validation.values.carId;
+    listing.title = validation.values.title;
+    listing.description = validation.values.description;
+    listing.price = validation.values.price;
+    listing.year = validation.values.year;
+    listing.mileage = validation.values.mileage;
+    listing.fuelType = validation.values.fuelType;
+    listing.transmission = validation.values.transmission;
+    listing.location = validation.values.location;
+    listing.phone = validation.values.phone;
     listing.images = [...keptImages, ...newImages];
 
     await listing.save();
@@ -276,6 +256,7 @@ const updateListing = async (req, res) => {
 
     return res.status(200).json(updatedListing);
   } catch (error) {
+    removeUploadedFiles(newImages);
     return res.status(500).json({ message: 'Unable to update listing.' });
   }
 };
