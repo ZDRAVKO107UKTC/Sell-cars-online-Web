@@ -16,6 +16,14 @@ const initialFormState = {
   phone: '',
 };
 
+const toCalendarDate = (year) => {
+  if (!year) {
+    return '';
+  }
+
+  return `${String(year)}-01-01`;
+};
+
 function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) {
   const [formValues, setFormValues] = useState({
     ...initialFormState,
@@ -30,8 +38,25 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
   const [existingImages, setExistingImages] = useState(initialData?.images || []);
   const [newImages, setNewImages] = useState([]);
   const [newImagePreviews, setNewImagePreviews] = useState([]);
+  const [yearCalendarValue, setYearCalendarValue] = useState(toCalendarDate(initialData?.year || ''));
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    setFormValues({
+      ...initialFormState,
+      ...initialData,
+      carId: initialData.carId ? String(initialData.carId) : '',
+    });
+    setSelectedMake(initialData.car?.make || '');
+    setSelectedModel(initialData.car?.model || '');
+    setExistingImages(initialData.images || []);
+    setYearCalendarValue(toCalendarDate(initialData.year || ''));
+  }, [initialData]);
 
   useEffect(() => {
     const loadMakes = async () => {
@@ -103,6 +128,15 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormValues((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleYearChange = (event) => {
+    const { value } = event.target;
+    setYearCalendarValue(value);
+    setFormValues((current) => ({
+      ...current,
+      year: value ? String(new Date(value).getFullYear()) : '',
+    }));
   };
 
   const handleMakeChange = (event) => {
@@ -223,7 +257,17 @@ function ListingForm({ initialData, onSubmit, submitLabel, isEditing = false }) 
 
         <div className="field">
           <label htmlFor="year">Година</label>
-          <input id="year" name="year" type="number" value={formValues.year} onChange={handleChange} required />
+          <input
+            id="year"
+            name="year"
+            type="date"
+            min="1950-01-01"
+            max="2035-12-31"
+            value={yearCalendarValue}
+            onChange={handleYearChange}
+            required
+          />
+          <span className="field__hint">Избери произволен ден от съответната моделна година.</span>
         </div>
 
         <div className="field">

@@ -26,17 +26,16 @@ function ListingDetailsPage() {
   const loadListing = async () => {
     try {
       setIsLoading(true);
-      const [listingData, commentsData] = await Promise.all([
-        getListingById(id),
-        getListingComments(id),
-      ]);
-
-      const resolvedImages = (listingData.images || []).map((image) => resolveUploadUrl(image)).filter(Boolean);
+      const [listingData, commentsData] = await Promise.all([getListingById(id), getListingComments(id)]);
+      const initialImages = (listingData.images || [])
+        .map((image) => resolveUploadUrl(image))
+        .filter(Boolean);
 
       setListing(listingData);
       setComments(commentsData);
       setFailedImages([]);
-      setActiveImage(resolvedImages[0] || '');
+      setActiveImage(initialImages[0] || '');
+      setError('');
     } catch (loadError) {
       setError(loadError.message);
     } finally {
@@ -55,6 +54,21 @@ function ListingDetailsPage() {
         .filter((image) => image && !failedImages.includes(image)),
     [listing, failedImages]
   );
+
+  const mapQuery = useMemo(() => {
+    if (!listing?.location) {
+      return '';
+    }
+
+    return encodeURIComponent(`${listing.location}, Bulgaria`);
+  }, [listing]);
+
+  const mapEmbedUrl = mapQuery
+    ? `https://maps.google.com/maps?q=${mapQuery}&t=&z=13&ie=UTF8&iwloc=&output=embed`
+    : '';
+  const mapDirectionsUrl = mapQuery
+    ? `https://www.google.com/maps/search/?api=1&query=${mapQuery}`
+    : '';
 
   useEffect(() => {
     if (!activeImage && resolvedImages[0]) {
@@ -115,7 +129,9 @@ function ListingDetailsPage() {
             Към всички обяви
           </Link>
           <span>/</span>
-          <span>{listing.car?.make} {listing.car?.model}</span>
+          <span>
+            {listing.car?.make} {listing.car?.model}
+          </span>
         </div>
       </div>
 
@@ -181,14 +197,38 @@ function ListingDetailsPage() {
             </div>
 
             <div className="spec-grid">
-              <div><strong>Година</strong><span>{listing.year}</span></div>
-              <div><strong>Пробег</strong><span>{Number(listing.mileage).toLocaleString('bg-BG')} км</span></div>
-              <div><strong>Гориво</strong><span>{listing.fuelType}</span></div>
-              <div><strong>Скоростна кутия</strong><span>{listing.transmission}</span></div>
-              <div><strong>Двигател</strong><span>{listing.car?.engine}</span></div>
-              <div><strong>Мощност</strong><span>{listing.car?.horsepower} hp</span></div>
-              <div><strong>Задвижване</strong><span>{listing.car?.drivetrain}</span></div>
-              <div><strong>Купе</strong><span>{listing.car?.bodyType}</span></div>
+              <div>
+                <strong>Година</strong>
+                <span>{listing.year}</span>
+              </div>
+              <div>
+                <strong>Пробег</strong>
+                <span>{Number(listing.mileage).toLocaleString('bg-BG')} км</span>
+              </div>
+              <div>
+                <strong>Гориво</strong>
+                <span>{listing.fuelType}</span>
+              </div>
+              <div>
+                <strong>Скоростна кутия</strong>
+                <span>{listing.transmission}</span>
+              </div>
+              <div>
+                <strong>Двигател</strong>
+                <span>{listing.car?.engine}</span>
+              </div>
+              <div>
+                <strong>Мощност</strong>
+                <span>{listing.car?.horsepower} hp</span>
+              </div>
+              <div>
+                <strong>Задвижване</strong>
+                <span>{listing.car?.drivetrain}</span>
+              </div>
+              <div>
+                <strong>Купе</strong>
+                <span>{listing.car?.bodyType}</span>
+              </div>
             </div>
 
             <div className="content-stack">
@@ -222,7 +262,7 @@ function ListingDetailsPage() {
           <div className="panel contact-panel">
             <div className="panel-heading">
               <h2>Бърз контакт</h2>
-              <span>Свържи се директно с продавача и провери наличността</span>
+              <span>Свържи се директно с продавача и провери наличността.</span>
             </div>
             <div className="contact-panel__value">{listing.phone}</div>
             <div className="contact-panel__items">
@@ -236,12 +276,14 @@ function ListingDetailsPage() {
           <div className="panel details-side-panel">
             <div className="panel-heading">
               <h2>Обява накратко</h2>
-              <span>Основните данни са събрани за по-бърз преглед</span>
+              <span>Основните данни са събрани за по-бърз преглед.</span>
             </div>
             <div className="stack-list">
               <div className="stack-item">
                 <strong>Модел</strong>
-                <span>{listing.car?.make} {listing.car?.model} {listing.car?.generation}</span>
+                <span>
+                  {listing.car?.make} {listing.car?.model} {listing.car?.generation}
+                </span>
               </div>
               <div className="stack-item">
                 <strong>Собственик</strong>
@@ -254,15 +296,31 @@ function ListingDetailsPage() {
             </div>
           </div>
 
+          {mapEmbedUrl && (
+            <div className="panel map-panel">
+              <div className="panel-heading">
+                <h2>Локация</h2>
+                <span>Прегледай района на картата и отвори навигация в Google Maps.</span>
+              </div>
+              <div className="map-frame">
+                <iframe
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={mapEmbedUrl}
+                  title={`Map for ${listing.location}`}
+                />
+              </div>
+              <a className="text-link map-link" href={mapDirectionsUrl} rel="noreferrer" target="_blank">
+                Отвори локацията в Google Maps
+              </a>
+            </div>
+          )}
+
           <CommentSection
             comments={comments}
             user={user}
             onCreate={async (payload) => {
               await createComment(id, payload);
-              await loadListing();
-            }}
-            onUpdate={async (commentId, payload) => {
-              await updateComment(commentId, payload);
               await loadListing();
             }}
             onDelete={async (commentId) => {
@@ -271,6 +329,10 @@ function ListingDetailsPage() {
             }}
             onLike={async (commentId) => {
               await likeComment(commentId);
+              await loadListing();
+            }}
+            onUpdate={async (commentId, payload) => {
+              await updateComment(commentId, payload);
               await loadListing();
             }}
           />
